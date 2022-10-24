@@ -2,8 +2,6 @@
 #include <ostream>
 #include <iostream>
 
-
-
 Vector::Vector()
 {
     dim = NDIM;
