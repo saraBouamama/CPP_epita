@@ -4,7 +4,6 @@ selection_sort_file/a.out
 selection_sort_file/sorted.txt
 selection_sort_file_meta/sorted_values.txt
 selection_sort_file_meta/main
-selection_sort_file_meta/*.txt
 selection_sort_file_meta/CMakeFiles/
 selection_sort_file_meta/CMakeCaches.txt
 selection_sort_file_meta/cmake_install.cmake
