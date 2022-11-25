@@ -1,5 +1,8 @@
 .vscode/
 
+cartesian_vector_variable/CMakeCache.txt
+cartesian_vector_variable/Makefile
+
 selection_sort/a.out
 
 selection_sort_file/a.out
