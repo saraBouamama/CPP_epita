@@ -1,123 +1,156 @@
-#include "vector.hh"
 #include <ostream>
-#include <iostream>
+#include <memory>
 
-Vector::Vector()
+#include "vector.h"
+
+Vector::Vector(const Vector &rhs)
+    : N(rhs.N), data(new value[N])
 {
-    dim = NDIM;
-    for (size_t i = 0; i < dim; i++)
+    for (size_t i = 0; i < N; ++i)
     {
-        coord[i] = 0;
+        data[i] = rhs.data[i];
     }
 }
 
-Vector::Vector(std::initializer_list<value> list)
+Vector &Vector::operator=(const Vector &rhs)
 {
-    dim = list.size();
+    if (this != &rhs)
+    {
+        N = rhs.N;
+        data.reset(new value[N]);
+        for (size_t i = 0; i < N; ++i)
+        {
+            data[i] = rhs.data[i];
+        }
+    }
+    return *this;
+}
+
+Vector::Vector(size_t N) : N(N), data(new value[N])
+{
+    for (size_t i = 0; i < N; ++i)
+    {
+        data[i] = 0;
+    }
+}
+
+Vector::Vector(std::initializer_list<value> l) : N(l.size()), data(new value[N])
+{
     size_t i = 0;
-    for (auto &elem : list)
+    for (auto &v : l)
     {
-        coord[i++] = elem;
+        data[i++] = v;
     }
 }
 
-size_t Vector::get_size() const
+size_t Vector::size() const
 {
-    return dim;
+    return N;
 }
 
 Vector &Vector::operator+=(const Vector &rhs)
 {
-    for (size_t i = 0; i <  rhs.get_size(); i++)
+    assert(N == rhs.N);
+    for (size_t i = 0; i < N; ++i)
     {
-        coord[i] = coord[i] + rhs[i];
+        data[i] += rhs.data[i];
     }
     return *this;
 }
 
 Vector &Vector::operator-=(const Vector &rhs)
 {
-    for (size_t i = 0; i <  rhs.get_size(); i++)
+    assert(N == rhs.N);
+    for (size_t i = 0; i < N; ++i)
     {
-        coord[i] = coord[i] - rhs[i];
+        data[i] -= rhs.data[i];
     }
     return *this;
 }
 
-Vector Vector::operator+(const Vector &rhs)
+Vector &Vector::operator+=(value v)
 {
-    auto v = Vector();
-    for (size_t i = 0; i <  rhs.get_size(); i++)
+    for (size_t i = 0; i < N; ++i)
     {
-        v[i] = rhs[i] + (*this)[i];
+        data[i] += v;
     }
-    return v;
+    return *this;
 }
 
-Vector Vector::operator-(const Vector &rhs)
+Vector &Vector::operator*=(value v)
 {
-    auto v = Vector();
-    for (size_t i = 0; i <  rhs.get_size(); i++)
+    for (size_t i = 0; i < N; ++i)
     {
-        v[i] = rhs[i] - (*this)[i];
+        data[i] *= v;
     }
-    return v;
+    return *this;
 }
 
-value Vector::operator*(const Vector &rhs)
+Vector Vector::operator+(const Vector &rhs) const
 {
-    value v = 0;
-    for (size_t i = 0; i <  rhs.get_size(); i++)
+    Vector result(*this);
+    result += rhs;
+    return result;
+}
+
+Vector Vector::operator+(value v) const
+{
+    Vector result(*this);
+    result += v;
+    return result;
+}
+
+value Vector::operator*(const Vector &rhs) const
+{
+    assert(N == rhs.N);
+    value result = 0;
+    for (size_t i = 0; i < N; ++i)
     {
-        v += rhs[i] * (*this)[i];
+        result += data[i] * rhs.data[i];
     }
-    return v;
+    return result;
 }
 
-value Vector::operator[](size_t i) const
+Vector Vector::operator*(value v) const
 {
-    return coord[i];
+    Vector result(*this);
+    result *= v;
+    return result;
 }
 
-value &Vector::operator[](size_t i)
+value &Vector::operator[](size_t idx)
 {
-    return coord[i];
+    assert(idx < N);
+    return data[idx];
 }
 
-Vector operator*(Vector &rhs, const value n)
+value Vector::operator[](size_t idx) const
 {
-    auto v = Vector();
-    for (size_t i = 0; i <  rhs.get_size(); i++)
+    assert(idx < N);
+    return data[idx];
+}
+
+Vector operator*(const value &s, const Vector &v)
+{
+    return v * s;
+}
+
+Vector operator+(const value &s, const Vector &v)
+{
+    return v + s;
+}
+
+std::ostream &operator<<(std::ostream &o, const Vector &v)
+{
+    o << "{";
+    for (size_t i = 0; i < v.size(); ++i)
     {
-        v[i] = rhs[i] * n;
+        o << v[i];
+        if (i != v.size() - 1)
+        {
+            o << ",";
+        }
     }
-    return v;
-}
-
-Vector operator*=(Vector &rhs, const value n)
-{
-    for (size_t i = 0; i <  rhs.get_size(); i++)
-    {
-        rhs[i] = rhs[i] * n;
-    }
-    return rhs;
-}
-
-Vector operator+=(Vector &rhs, const value n)
-{
-    for (size_t i = 0; i <  rhs.get_size(); i++)
-    {
-        rhs[i] = rhs[i] + n;
-    }
-    return rhs;
-}
-
-std::ostream& operator<<(std::ostream &os, const Vector& rhs)
-{
-    os << "{";
-    for (int i = 0; i < rhs.get_size(); i++)
-    {
-        os << rhs[i] << (i == rhs.get_size() - 1 ? "" : ",");
-    }
-    return os << "}";
+    o << "}";
+    return o;
 }
